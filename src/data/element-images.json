@@ -1,0 +1,42 @@
+{
+  "H": {
+    "imageUrl": "https://images.unsplash.com/photo-1581088411512-3e4c1f6574d2?q=80&w=800",
+    "caption": "Hydrogen Elephant - The Lightest Pachyderm"
+  },
+  "He": {
+    "imageUrl": "https://images.unsplash.com/photo-1575303093127-1f66ae0ab88d?q=80&w=800",
+    "caption": "Helium Elephant - Floating High"
+  },
+  "Li": {
+    "imageUrl": "https://images.unsplash.com/photo-1567462219588-dd9f6305f011?q=80&w=800",
+    "caption": "Lithium Elephant - Mood Stabilizer"
+  },
+  "O": {
+    "imageUrl": "https://images.unsplash.com/photo-1521651201144-634f700b36ef?q=80&w=800",
+    "caption": "Oxygen Elephant - Breathing Life"
+  },
+  "Na": {
+    "imageUrl": "https://images.unsplash.com/photo-1583083527882-4bee9aba0d66?q=80&w=800",
+    "caption": "Sodium Elephant - Salty Temper"
+  },
+  "Cl": {
+    "imageUrl": "https://images.unsplash.com/photo-1543709483-fa9a0dd4ce7f?q=80&w=800",
+    "caption": "Chlorine Elephant - Pool Cleaner"
+  },
+  "Fe": {
+    "imageUrl": "https://images.unsplash.com/photo-1582044655025-0c358abff94e?q=80&w=800",
+    "caption": "Iron Elephant - Strong and Sturdy"
+  },
+  "Au": {
+    "imageUrl": "https://images.unsplash.com/photo-1582845512747-e42001c95638?q=80&w=800",
+    "caption": "Gold Elephant - Precious Pachyderm"
+  },
+  "Hg": {
+    "imageUrl": "https://images.unsplash.com/photo-1578326626553-39f72c545b6c?q=80&w=800",
+    "caption": "Mercury Elephant - Fluid Mover"
+  },
+  "U": {
+    "imageUrl": "https://images.unsplash.com/photo-1581852017383-51e8521fb06a?q=80&w=800",
+    "caption": "Uranium Elephant - Glowing with Power"
+  }
+}
