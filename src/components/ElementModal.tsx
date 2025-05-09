@@ -7,9 +7,10 @@ interface ElementModalProps {
   element: ElementWithImage | null;
   onClose: () => void;
   onDeleteElephant?: (id: number) => Promise<void>;
+  onAddElephant?: (elementSymbol: string) => void;
 }
 
-const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteElephant }) => {
+const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteElephant, onAddElephant }) => {
   if (!element) return null;
   
   const [activeIndex, setActiveIndex] = useState(0);
@@ -252,21 +253,57 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
               <div className="flex-1 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-6">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-xl font-bold mb-2">Elephant Not Yet Discovered</h3>
-                <p className="text-center text-gray-600 dark:text-gray-400">
-                  This element's elephant is still waiting to be discovered. Check back later!
+                <p className="text-center text-gray-600 dark:text-gray-400 mb-4">
+                  This element's elephant is still waiting to be discovered!
                 </p>
+                
+                {onAddElephant && (
+                  <button
+                    className="mt-2 px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center"
+                    onClick={() => {
+                      onClose();
+                      onAddElephant(element.symbol);
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Elephant for {element.symbol}
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
         
-        <div className="mt-6 sticky bottom-0 pb-2 pt-2 bg-white dark:bg-gray-800 flex justify-center md:justify-end w-full">
-          <button
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-auto"
-            onClick={onClose}
-          >
-            Close
-          </button>
+        <div className="mt-6 sticky bottom-0 pb-2 pt-2 bg-white dark:bg-gray-800 w-full">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            {/* Add Elephant button */}
+            {onAddElephant && (
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center justify-center w-full sm:w-auto"
+                onClick={() => {
+                  onClose();
+                  onAddElephant(element.symbol);
+                }}
+              >
+                <span className="mr-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+                Add Elephant
+              </button>
+            )}
+            
+            {/* Close button */}
+            <button
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full sm:w-auto"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

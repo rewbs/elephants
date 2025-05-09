@@ -7,6 +7,7 @@ interface AdminPanelProps {
   onSaveElephant: (symbol: string, file: File, caption: string) => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
+  preselectedElement?: string; // Symbol of the element to preselect
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ 
@@ -14,7 +15,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   elephantsByElement,
   onSaveElephant, 
   isOpen, 
-  onClose 
+  onClose,
+  preselectedElement
 }) => {
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
   const [caption, setCaption] = useState<string>('');
@@ -33,6 +35,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       }, 100);
     }
   }, [isOpen]);
+  
+  // Set the selected element when preselectedElement changes
+  useEffect(() => {
+    if (isOpen && preselectedElement) {
+      setSelectedSymbol(preselectedElement);
+    }
+  }, [isOpen, preselectedElement]);
 
   // Get all elements, regardless of whether they have elephants
   const availableElements = elements;

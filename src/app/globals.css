@@ -65,18 +65,55 @@ body::before {
 .element {
   @apply relative w-full h-full flex flex-col justify-center items-center p-1 transition-all duration-300 
          hover:scale-105 hover:z-10 cursor-pointer rounded-md backdrop-blur-sm;
+  min-height: 100%;
 }
 
 .grid-container {
-  @apply grid grid-cols-18 gap-1 w-full mx-auto px-4 sm:px-6 lg:px-8;
-  min-width: 95%;
+  @apply grid grid-cols-18 gap-1 mx-auto px-4 sm:px-6 lg:px-8;
+  width: 100%;
+  justify-content: center;
 }
 
-/* Ensure elements scale appropriately on desktop */
-@media (min-width: 1280px) {
+/* Large desktop displays */
+@media (min-width: 1440px) {
   .grid-container {
-    min-width: 1200px;
-    max-width: 95%;
+    width: 90%;
+    margin: 0 auto;
+  }
+  
+  /* Make element cells larger on big screens */
+  .element-cell {
+    height: 6rem !important; /* h-24 equivalent */
+  }
+  
+  /* Fix the text size for readability */
+  .element-symbol {
+    @apply text-3xl font-bold;
+  }
+  
+  .element-name {
+    @apply text-base;
+    display: block;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 0.25rem;
+  }
+}
+
+/* Extra large desktop displays */
+@media (min-width: 1800px) {
+  .element-cell {
+    height: 7rem !important; /* h-28 equivalent */
+  }
+  
+  .element-symbol {
+    @apply text-4xl;
+  }
+  
+  .element-name {
+    @apply text-lg;
   }
 }
 
@@ -102,6 +139,12 @@ body::before {
 @layer utilities {
   .grid-cols-18 {
     grid-template-columns: repeat(18, minmax(0, 1fr));
+  }
+  
+  /* Custom utility for double-width element cells */
+  .element-cell-2xl {
+    width: 100%;
+    aspect-ratio: 1.2 / 1;
   }
 }
 

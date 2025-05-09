@@ -19,6 +19,7 @@ function Home() {
   const [completionCount, setCompletionCount] = useState<number>(0);
   const [totalElements, setTotalElements] = useState<number>(0);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
+  const [preselectedElement, setPreselectedElement] = useState<string>('');
   const [elephantsByElement, setElephantsByElement] = useState<Record<string, ElephantImage[]>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -87,6 +88,12 @@ function Home() {
   // Function to close the modal
   const handleCloseModal = () => {
     setSelectedElement(null);
+  };
+  
+  // Function to open admin panel with a pre-selected element
+  const handleAddElephant = (elementSymbol: string) => {
+    setPreselectedElement(elementSymbol);
+    setIsAdminPanelOpen(true);
   };
   
   // Function to delete an elephant
@@ -254,7 +261,7 @@ function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 w-full">
+    <div className="container mx-auto xl:px-40 py-8 min-w-full">
       <div className="relative mb-12 text-center">
         <img src="/elephant-icon.svg" alt="Elephant icon" className="absolute left-1/2 -translate-x-1/2 -top-16 w-32 h-32 opacity-10" />
         <h1 className="text-3xl md:text-5xl font-bold text-center mb-4 relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -264,23 +271,32 @@ function Home() {
           Click on an element to view its corresponding elephant.
         </p>
         
-        <div className="text-center mt-8">
+        <div className="text-center mt-4">
           <div className="inline-block bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-full px-6 py-3 shadow-sm">
             <span className="font-medium text-lg">{completionCount}</span> of <span className="font-medium text-lg">{totalElements}</span> elements have elephants 
             <span className="ml-2 text-yellow-500">✨</span>
           </div>
         </div>
       </div>
-      
+      <div className="text-center my-4">
+        <button
+          onClick={() => setIsAdminPanelOpen(true)}
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full hover:from-indigo-700 hover:to-purple-700 shadow-lg transition-all duration-300 hover:shadow-xl"
+        >
+          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-6 h-6 mr-2 filter brightness-0 invert" />
+          Add New Elephant
+        </button>
+      </div>      
+
       <Legend />
       
-      <div className="grid-container my-8">
+      <div className="grid-container my-8 min-w-full">
         {grid.map((row, rowIndex) => (
           <React.Fragment key={`row-${rowIndex}`}>
             {row.map((element, colIndex) => (
               <div 
                 key={`${rowIndex}-${colIndex}`} 
-                className={`h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 ${!element ? 'bg-transparent' : ''}`}
+                className={`h-16 sm:h-20 md:h-24 element-cell ${!element ? 'bg-transparent' : ''}`}
                 style={{ gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
               >
                 {element && (
@@ -295,21 +311,12 @@ function Home() {
         ))}
       </div>
       
-      <div className="text-center my-8">
-        <button
-          onClick={() => setIsAdminPanelOpen(true)}
-          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full hover:from-indigo-700 hover:to-purple-700 shadow-lg transition-all duration-300 hover:shadow-xl"
-        >
-          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-6 h-6 mr-2 filter brightness-0 invert" />
-          Add New Elephant
-        </button>
-      </div>
-      
       {selectedElement && (
         <ElementModal 
           element={selectedElement} 
           onClose={handleCloseModal}
           onDeleteElephant={handleDeleteElephant}
+          onAddElephant={handleAddElephant}
         />
       )}
       
@@ -319,6 +326,7 @@ function Home() {
         onSaveElephant={handleSaveElephant}
         isOpen={isAdminPanelOpen}
         onClose={() => setIsAdminPanelOpen(false)}
+        preselectedElement={preselectedElement}
       />
     </div>
   );

@@ -36,7 +36,7 @@ export default function RootLayout({
         </div>
         <OrientationHandler />
         <main className="min-h-screen py-4 relative z-10">
-          <div className="backdrop-blur-[1px] bg-white/60 dark:bg-black/60 rounded-xl mx-auto">
+          <div className="backdrop-blur-[1px] bg-white/60 dark:bg-black/60 rounded-xl mx-4 sm:mx-8 lg:mx-24 xl:mx-32 2xl:mx-40">
             {children}
           </div>
         </main>
