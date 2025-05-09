@@ -100,7 +100,7 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
               <div className="flex justify-between items-center mt-2">
                 <span className="text-sm text-gray-500">Element: {element.name} ({element.symbol})</span>
                 
-                {onDeleteElephant && activeElephant.id && (
+                {onDeleteElephant && activeElephant?.id && (
                   <button
                     onClick={() => {
                       const elephantId = activeElephant.id!;

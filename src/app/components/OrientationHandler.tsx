@@ -29,8 +29,10 @@ export default function OrientationHandler() {
     window.addEventListener('resize', handleOrientationChange);
     
     // Try to force landscape if supported
+    // @ts-expect-error 
     if (screen.orientation && screen.orientation.lock) {
       try {
+        // @ts-expect-error 
         screen.orientation.lock('landscape').catch(() => {
           console.log('Orientation lock not supported or permission denied');
         });
