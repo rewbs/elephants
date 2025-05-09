@@ -93,8 +93,11 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                 {elephants.length > 1 && (
                   <>
                     <button 
-                      onClick={prevElephant}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevElephant();
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
                       aria-label="Previous elephant"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -102,8 +105,11 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                       </svg>
                     </button>
                     <button 
-                      onClick={nextElephant}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextElephant();
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
                       aria-label="Next elephant"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,10 +121,13 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                 
                 {/* Current elephant image - clickable for fullscreen */}
                 <div 
-                  className="absolute inset-0 cursor-pointer z-10 group"
+                  className="absolute inset-0 cursor-pointer z-[1] group"
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setFullscreenImage(activeElephant!.imageUrl);
+                    // Ensure we don't trigger fullscreen if clicking on the nav buttons
+                    if (e.target === e.currentTarget || (e.target as HTMLElement).tagName === 'IMG') {
+                      e.stopPropagation();
+                      setFullscreenImage(activeElephant!.imageUrl);
+                    }
                   }}
                   title="Click to view fullscreen"
                 >
