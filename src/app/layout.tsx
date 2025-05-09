@@ -17,8 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="min-h-screen py-8">
-          {children}
+        <main className="min-h-screen py-8 relative z-10">
+          <div className="backdrop-blur-[1px] bg-white/60 dark:bg-black/60 rounded-xl max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </body>
     </html>

@@ -13,14 +13,17 @@ export interface Element {
 }
 
 export interface ElephantImage {
+  id?: number;
   imageUrl: string;
   caption: string;
+  blobKey?: string;
+  createdAt?: Date;
 }
 
 export interface ElementWithImage extends Element {
-  elephant?: ElephantImage;
+  elephants: ElephantImage[];
 }
 
 export type ElephantImagesMap = {
-  [key: string]: ElephantImage;
+  [key: string]: ElephantImage[];
 };
