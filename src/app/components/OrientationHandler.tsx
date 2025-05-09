@@ -4,22 +4,9 @@ import { useEffect } from 'react';
 
 export default function OrientationHandler() {
   useEffect(() => {
-    // Function to handle screen orientation changes
+    // Function to handle screen orientation changes - minimal now since CSS does most of the work
     const handleOrientationChange = () => {
-      // Get the orientation type
-      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-      
-      // Select the notification element
-      const noticeElement = document.querySelector('.mobile-notice');
-      
-      // Show/hide the notification based on orientation
-      if (noticeElement) {
-        if (isPortrait && window.innerWidth < 768) {
-          noticeElement.classList.remove('hidden');
-        } else {
-          noticeElement.classList.add('hidden');
-        }
-      }
+      // We mainly just need this to handle any future dynamic UI updates based on orientation
     };
 
     // Set initial orientation state
@@ -28,18 +15,8 @@ export default function OrientationHandler() {
     // Add event listener for orientation changes
     window.addEventListener('resize', handleOrientationChange);
     
-    // Try to force landscape if supported
-    // @ts-expect-error 
-    if (screen.orientation && screen.orientation.lock) {
-      try {
-        // @ts-expect-error 
-        screen.orientation.lock('landscape').catch(() => {
-          console.log('Orientation lock not supported or permission denied');
-        });
-      } catch (error) {
-        console.log('Orientation API not supported');
-      }
-    }
+    // We won't try to force landscape anymore since we're displaying in portrait mode too
+    // User can rotate if they want to based on our notification
     
     // Clean up
     return () => {

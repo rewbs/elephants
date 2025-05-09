@@ -34,14 +34,14 @@ const ElementCard: React.FC<ElementCardProps> = ({ element, onClick }) => {
       className={`element ${getCategoryClass(category)} ${hasElephants ? 'ring-2 ring-yellow-400 dark:ring-yellow-500' : ''}`}
       onClick={() => onClick(element)}
     >
-      <div className="absolute top-1 left-1 text-xs">{atomicNumber}</div>
-      <div className="text-lg sm:text-xl font-bold">{symbol}</div>
-      <div className="text-xs truncate max-w-full">{name}</div>
+      <div className="absolute top-1 left-1 text-xs md:text-sm lg:text-base">{atomicNumber}</div>
+      <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">{symbol}</div>
+      <div className="text-xs sm:text-xs md:text-sm lg:text-base truncate max-w-full">{name}</div>
       {hasElephants && (
         <div className="absolute bottom-1 right-1 flex items-center">
-          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-5 h-5" />
+          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
           {elephantCount > 1 && (
-            <span className="text-xs font-bold bg-yellow-400 dark:bg-yellow-600 text-black dark:text-white rounded-full w-4 h-4 flex items-center justify-center -ml-1 -mt-2">
+            <span className="text-xs md:text-sm font-bold bg-yellow-400 dark:bg-yellow-600 text-black dark:text-white rounded-full w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center -ml-1 -mt-2 md:-ml-2 md:-mt-3">
               {elephantCount > 9 ? '9+' : elephantCount}
             </span>
           )}

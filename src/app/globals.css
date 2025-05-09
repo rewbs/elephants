@@ -68,12 +68,30 @@ body::before {
 }
 
 .grid-container {
-  @apply grid grid-cols-18 gap-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply grid grid-cols-18 gap-1 w-full mx-auto px-4 sm:px-6 lg:px-8;
+  min-width: 95%;
 }
 
+/* Ensure elements scale appropriately on desktop */
+@media (min-width: 1280px) {
+  .grid-container {
+    min-width: 1200px;
+    max-width: 95%;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .grid-container {
+    min-width: 90%;
+  }
+}
+
+/* Small screens */
 @media (max-width: 640px) {
   .grid-container {
     @apply grid-cols-10 gap-0.5;
+    min-width: 100%;
   }
   
   .element {
@@ -92,37 +110,39 @@ body::before {
   display: none;
 }
 
+/* Mobile portrait mode - show the content with prominent rotation message */
 @media screen and (max-width: 767px) and (orientation: portrait) {
   .mobile-notice {
     display: block;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0.75rem;
+    background-color: #f59e0b;
+    color: #000;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
-}
 
-/* Landscape mode styles */
-@media screen and (max-width: 767px) and (orientation: portrait) {
-  html {
-    overflow: auto;
-  }
-  
-  body {
-    min-height: 100vh;
-    min-width: 100vw;
-    transform: rotate(90deg);
-    transform-origin: left top;
-    width: 100vh;
-    height: 100vw;
-    overflow-x: hidden;
-    position: absolute;
-    top: 100%;
-    left: 0;
-  }
-  
-  /* Adjust grid for forced landscape */
+  /* Special styling for the grid in portrait mode */
   .grid-container {
-    width: 100vh;
+    @apply grid-cols-10;
+    width: 100%;
     max-width: none;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    min-width: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Scale down a bit to fit more content */
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+  
+  /* Make elements smaller to fit the screen */
+  .element {
+    @apply text-xs;
   }
 }
 
@@ -143,5 +163,23 @@ body::before {
   .grid-container {
     width: 100%;
     max-width: 7xl;
+    min-width: 90%;
+  }
+}
+
+/* Ensure desktop has proper sizing */
+@media screen and (min-width: 1025px) {
+  body {
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    overflow: auto !important;
+  }
+  
+  .grid-container {
+    width: auto !important;
   }
 }

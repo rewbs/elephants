@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { ElementWithImage } from '@/types/types';
+import FullscreenImage from './FullscreenImage';
 
 interface ElementModalProps {
   element: ElementWithImage | null;
@@ -12,6 +13,18 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
   if (!element) return null;
   
   const [activeIndex, setActiveIndex] = useState(0);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll the modal into view when it opens
+  useEffect(() => {
+    if (modalRef.current) {
+      // Scroll to the modal with a slight delay to ensure proper rendering
+      setTimeout(() => {
+        modalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, []);
 
   // Create a CSS class based on the category
   const getCategoryClass = (category: string) => {
@@ -43,12 +56,35 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={onClose}>
-      <div 
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex flex-col gap-6">
+    <>
+      {/* Fullscreen image viewer */}
+      {fullscreenImage && (
+        <FullscreenImage 
+          src={fullscreenImage} 
+          alt={activeElephant?.caption || "Elephant Image"} 
+          onClose={() => setFullscreenImage(null)} 
+        />
+      )}
+    
+      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-75 p-4 overflow-y-auto" onClick={onClose}>
+        <div 
+          ref={modalRef}
+          className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 my-4 md:my-10 overflow-y-auto relative"
+          style={{ maxHeight: 'calc(100vh - 32px)' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button at top right for easier mobile access */}
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-2 rounded-full"
+            aria-label="Close modal"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div className="flex flex-col gap-6 pt-4">
           {/* Elephant image carousel - Displayed prominently when available */}
           {hasElephants && (
             <div className="w-full">
@@ -77,7 +113,22 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                   </>
                 )}
                 
-                {/* Current elephant image */}
+                {/* Current elephant image - clickable for fullscreen */}
+                <div 
+                  className="absolute inset-0 cursor-pointer z-10 group"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFullscreenImage(activeElephant!.imageUrl);
+                  }}
+                  title="Click to view fullscreen"
+                >
+                  {/* Expand icon that appears on hover */}
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-black bg-opacity-50 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                    </svg>
+                  </div>
+                </div>
                 <Image 
                   src={activeElephant!.imageUrl}
                   alt={activeElephant!.caption}
@@ -128,6 +179,13 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                       onClick={() => setActiveIndex(idx)}
                       className={`relative h-16 w-16 rounded-md overflow-hidden border-2 ${idx === activeIndex ? 'border-blue-500' : 'border-transparent'}`}
                     >
+                      <div 
+                        className="absolute inset-0 z-10" 
+                        onDoubleClick={(e) => {
+                          e.stopPropagation();
+                          setFullscreenImage(elephant.imageUrl);
+                        }}
+                      />
                       <Image 
                         src={elephant.imageUrl}
                         alt={elephant.caption}
@@ -193,9 +251,9 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
           </div>
         </div>
         
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 sticky bottom-0 pb-2 pt-2 bg-white dark:bg-gray-800 flex justify-center md:justify-end w-full">
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full md:w-auto"
             onClick={onClose}
           >
             Close
@@ -203,6 +261,7 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
         </div>
       </div>
     </div>
+    </>
   );
 };
 

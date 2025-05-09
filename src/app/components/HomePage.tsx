@@ -254,7 +254,7 @@ function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 w-full">
       <div className="relative mb-12 text-center">
         <img src="/elephant-icon.svg" alt="Elephant icon" className="absolute left-1/2 -translate-x-1/2 -top-16 w-32 h-32 opacity-10" />
         <h1 className="text-3xl md:text-5xl font-bold text-center mb-4 relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -280,7 +280,7 @@ function Home() {
             {row.map((element, colIndex) => (
               <div 
                 key={`${rowIndex}-${colIndex}`} 
-                className={`h-16 sm:h-20 ${!element ? 'bg-transparent' : ''}`}
+                className={`h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 ${!element ? 'bg-transparent' : ''}`}
                 style={{ gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
               >
                 {element && (

@@ -23,12 +23,20 @@ export default function RootLayout({
         <meta name="screen-orientation" content="landscape" />
       </head>
       <body className={inter.className}>
-        <div className="mobile-notice fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-black py-2 px-4 text-center font-medium hidden">
-          For the best experience, please rotate your device to landscape mode.
+        <div className="mobile-notice">
+          <div className="flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+            For the best experience, please rotate your device
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </div>
         </div>
         <OrientationHandler />
-        <main className="min-h-screen py-8 relative z-10">
-          <div className="backdrop-blur-[1px] bg-white/60 dark:bg-black/60 rounded-xl max-w-7xl mx-auto">
+        <main className="min-h-screen py-4 relative z-10">
+          <div className="backdrop-blur-[1px] bg-white/60 dark:bg-black/60 rounded-xl mx-auto">
             {children}
           </div>
         </main>

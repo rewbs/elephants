@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Element, ElephantImage } from '@/types/types';
 
 interface AdminPanelProps {
@@ -22,6 +22,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll the modal into view when it opens
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      // Scroll to the modal with a slight delay to ensure proper rendering
+      setTimeout(() => {
+        modalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [isOpen]);
 
   // Get all elements, regardless of whether they have elephants
   const availableElements = elements;
@@ -89,12 +100,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-75 p-4 overflow-y-auto">
       <div 
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto my-10"
+        ref={modalRef}
+        className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md my-4 md:my-10 relative"
+        style={{ maxHeight: 'calc(100vh - 32px)', overflowY: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-4">Add New Elephant</h2>
+        {/* Close button at top right for easier mobile access */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 p-2 rounded-full"
+          aria-label="Close modal"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        
+        <h2 className="text-2xl font-bold mb-4 pr-8">Add New Elephant</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4" onPaste={handlePaste}>
           <div>
