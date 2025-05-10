@@ -68,6 +68,15 @@ body::before {
   min-height: 100%;
 }
 
+/* Ensure element names truncate properly */
+.element-name {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
 .grid-container {
   @apply grid grid-cols-18 gap-1 mx-auto px-4 sm:px-6 lg:px-8;
   width: 100%;
@@ -127,8 +136,10 @@ body::before {
 /* Small screens */
 @media (max-width: 640px) {
   .grid-container {
-    @apply grid-cols-10 gap-0.5;
-    min-width: 100%;
+    @apply grid-cols-18 gap-0.5;
+    min-width: 900px; /* Ensure minimum width for all 18 columns */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   
   .element {
@@ -153,39 +164,34 @@ body::before {
   display: none;
 }
 
-/* Mobile portrait mode - show the content with prominent rotation message */
+/* Mobile portrait mode - keep horizontal scrolling */
 @media screen and (max-width: 767px) and (orientation: portrait) {
   .mobile-notice {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    padding: 0.75rem;
-    background-color: #f59e0b;
-    color: #000;
-    font-weight: 600;
-    text-align: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: none; /* Hide rotation notice since we're using horizontal scroll */
   }
 
   /* Special styling for the grid in portrait mode */
   .grid-container {
-    @apply grid-cols-10;
+    @apply grid-cols-18;
     width: 100%;
     max-width: none;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    min-width: auto;
+    min-width: 900px; /* Ensure minimum width for all 18 columns */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* Scale down a bit to fit more content */
-    transform: scale(0.9);
-    transform-origin: top center;
+    transform: none; /* Remove scaling */
   }
   
-  /* Make elements smaller to fit the screen */
+  /* Make elements smaller but maintain readability */
   .element {
     @apply text-xs;
+    min-width: 42px; /* Set a minimum width for element cards */
+  }
+  
+  /* Ensure each cell has a minimum size */
+  .element-cell {
+    min-width: 42px;
   }
 }
 

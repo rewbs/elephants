@@ -4,23 +4,24 @@ import { useEffect } from 'react';
 
 export default function OrientationHandler() {
   useEffect(() => {
-    // Function to handle screen orientation changes - minimal now since CSS does most of the work
-    const handleOrientationChange = () => {
-      // We mainly just need this to handle any future dynamic UI updates based on orientation
+    // Set initial scroll position to center the table horizontally on mobile
+    const setInitialScroll = () => {
+      if (window.innerWidth < 768) {
+        const container = document.querySelector('.overflow-x-auto');
+        if (container) {
+          // Optional: scroll to a specific position to show content better
+          // Commented out as default behavior may be better
+          // container.scrollLeft = 150;
+        }
+      }
     };
 
-    // Set initial orientation state
-    handleOrientationChange();
-    
-    // Add event listener for orientation changes
-    window.addEventListener('resize', handleOrientationChange);
-    
-    // We won't try to force landscape anymore since we're displaying in portrait mode too
-    // User can rotate if they want to based on our notification
+    // Set initial scroll after a short delay to ensure content is rendered
+    const timer = setTimeout(setInitialScroll, 300);
     
     // Clean up
     return () => {
-      window.removeEventListener('resize', handleOrientationChange);
+      clearTimeout(timer);
     };
   }, []);
 

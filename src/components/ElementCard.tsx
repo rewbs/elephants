@@ -28,24 +28,43 @@ const ElementCard: React.FC<ElementCardProps> = ({ element, onClick }) => {
 
   const hasElephants = elephants && elephants.length > 0;
   const elephantCount = elephants?.length || 0;
+  const firstElephantImage = hasElephants ? elephants[0].imageUrl : null;
 
   return (
     <div 
-      className={`element ${getCategoryClass(category)} ${hasElephants ? 'ring-2 ring-yellow-400 dark:ring-yellow-500' : ''}`}
+      className={`element ${getCategoryClass(category)} ${hasElephants ? 'ring-2 ring-yellow-400 dark:ring-yellow-500 overflow-hidden' : ''}`}
       onClick={() => onClick(element)}
     >
-      <div className="absolute top-1 left-1 text-xs md:text-sm">{atomicNumber}</div>
-      <div className="element-symbol text-lg sm:text-xl md:text-2xl font-bold">{symbol}</div>
-      <div className="element-name text-xs truncate max-w-full">{name}</div>
+      {/* Background elephant image */}
+      {hasElephants && firstElephantImage && (
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="w-full h-full opacity-60 mix-blend-overlay"
+            style={{
+              backgroundImage: `url(${firstElephantImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'saturate(0.6) contrast(0.8)'
+            }}
+          />
+        </div>
+      )}
       
-      {/* We removed the thumbnail for simplicity */}
+      {/* Atomic number */}
+      <div className="absolute top-1 left-1 text-xs md:text-sm z-10">{atomicNumber}</div>
+      
+      {/* Main element content */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
+        <div className="element-symbol text-base sm:text-xl md:text-2xl font-bold">{symbol}</div>
+        <div className="element-name text-xs">{name}</div>
+      </div>
       
       {/* Elephant count indicator */}
       {hasElephants && (
-        <div className="absolute bottom-1 right-1 flex items-center">
-          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-5 h-5 md:w-6 md:h-6" />
+        <div className="absolute bottom-1 right-1 flex items-center z-10">
+          <img src="/elephant-icon.svg" alt="Elephant icon" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           {elephantCount > 1 && (
-            <span className="text-xs font-bold bg-yellow-400 dark:bg-yellow-600 text-black dark:text-white rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center -ml-1 -mt-2">
+            <span className="text-xs font-bold bg-yellow-400 dark:bg-yellow-600 text-black dark:text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex items-center justify-center -ml-1 -mt-2">
               {elephantCount > 9 ? '9+' : elephantCount}
             </span>
           )}

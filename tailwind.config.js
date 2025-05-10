@@ -18,6 +18,9 @@ module.exports = {
         'halogen': '#ADD8E6',
         'actinide': '#FF77FF',
         'lanthanide': '#FFAED7'
+      },
+      opacity: {
+        '15': '0.15',
       }
     },
   },
@@ -32,6 +35,8 @@ module.exports = {
     'bg-transition-metal',
     'bg-halogen',
     'bg-actinide',
-    'bg-lanthanide'
+    'bg-lanthanide',
+    'opacity-15',
+    'opacity-60'
   ]
 }

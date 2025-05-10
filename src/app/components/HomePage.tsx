@@ -290,25 +290,27 @@ function Home() {
 
       <Legend />
       
-      <div className="grid-container my-8 min-w-full">
-        {grid.map((row, rowIndex) => (
-          <React.Fragment key={`row-${rowIndex}`}>
-            {row.map((element, colIndex) => (
-              <div 
-                key={`${rowIndex}-${colIndex}`} 
-                className={`h-16 sm:h-20 md:h-24 element-cell ${!element ? 'bg-transparent' : ''}`}
-                style={{ gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
-              >
-                {element && (
-                  <ElementCard 
-                    element={element} 
-                    onClick={handleElementClick} 
-                  />
-                )}
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
+      <div className="overflow-x-auto pb-4">
+        <div className="grid-container my-8">
+          {grid.map((row, rowIndex) => (
+            <React.Fragment key={`row-${rowIndex}`}>
+              {row.map((element, colIndex) => (
+                <div 
+                  key={`${rowIndex}-${colIndex}`} 
+                  className={`h-16 sm:h-20 md:h-24 element-cell ${!element ? 'bg-transparent' : ''}`}
+                  style={{ gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
+                >
+                  {element && (
+                    <ElementCard 
+                      element={element} 
+                      onClick={handleElementClick} 
+                    />
+                  )}
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
       
       {selectedElement && (
