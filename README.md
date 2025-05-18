@@ -8,6 +8,7 @@ A playful, interactive web application built with Next.js and TypeScript that di
 - Elephant images for elements with creative captions
 - Progress tracker showing how many elephants have been discovered
 - Admin panel for adding new elephant images
+- AI-powered generator for creating elephant images
 - Responsive design that works on desktop and mobile devices
 - Detailed element information displayed in a modal
 - Dark mode support
@@ -33,6 +34,12 @@ A playful, interactive web application built with Next.js and TypeScript that di
 
 ```bash
 npm install
+```
+
+4. Provide an OpenAI API key in an environment variable so the app can generate images:
+
+```bash
+export OPENAI_API_KEY=your-key-here
 ```
 
 ### Running the Development Server

@@ -23,6 +23,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [aiPrompt, setAiPrompt] = useState<string>('');
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   
@@ -73,6 +76,37 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         }
       }
     }
+  };
+
+  const generateImage = async () => {
+    if (!aiPrompt) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch('/api/elephants/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+      if (!res.ok) throw new Error('Failed to generate image');
+      const data = await res.json();
+      setGeneratedImageUrl(data.imageUrl);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      alert('Failed to generate image');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const acceptGeneratedImage = async () => {
+    if (!generatedImageUrl) return;
+    const res = await fetch(generatedImageUrl);
+    const blob = await res.blob();
+    const file = new File([blob], 'ai-elephant.png', { type: blob.type });
+    setImageFile(file);
+    setPreviewUrl(generatedImageUrl);
+    setCaption(aiPrompt);
+    setGeneratedImageUrl(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,8 +194,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 {existingElephants.map((elephant, i) => (
                   <div key={i} className="text-xs border rounded p-2">
-                    <img 
-                      src={elephant.imageUrl} 
+                    <img
+                      src={elephant.imageUrl}
                       alt={elephant.caption}
                       className="w-full h-24 object-cover mb-1 rounded"
                     />
@@ -171,6 +205,55 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
             </div>
           )}
+
+          {/* AI generator */}
+          <div>
+            <label htmlFor="ai-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Generate with AI
+            </label>
+            <textarea
+              id="ai-prompt"
+              rows={2}
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              className="w-full rounded-md border border-gray-300 py-2 px-3 bg-white dark:bg-gray-700 dark:border-gray-600"
+              placeholder="e.g. wearing a top hat"
+            />
+            <button
+              type="button"
+              onClick={generateImage}
+              disabled={!aiPrompt || isGenerating}
+              className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+            >
+              {isGenerating ? 'Generating...' : 'Generate Elephant'}
+            </button>
+
+            {generatedImageUrl && (
+              <div className="mt-4">
+                <img
+                  src={generatedImageUrl}
+                  alt="Generated preview"
+                  className="w-full max-h-48 object-contain rounded border"
+                />
+                <div className="flex justify-end space-x-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={acceptGeneratedImage}
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Use this image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGeneratedImageUrl(null)}
+                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Discard
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
