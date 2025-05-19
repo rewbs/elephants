@@ -319,6 +319,7 @@ function Home() {
           onClose={handleCloseModal}
           onDeleteElephant={handleDeleteElephant}
           onAddElephant={handleAddElephant}
+          isAdmin={true}
         />
       )}
       

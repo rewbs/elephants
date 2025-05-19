@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 300; // seconds
+
 export async function POST(request: Request) {
   try {
-    const { prompt } = await request.json();
+    const { prompt, model = 'dall-e-3' } = await request.json();
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
@@ -21,7 +23,7 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'dall-e-3',
+        model: model === 'dall-e-3' ? 'dall-e-3' : 'gpt-image-1',
         prompt: enhancedPrompt,
         n: 1,
         size: '1024x1024',
@@ -35,6 +37,10 @@ export async function POST(request: Request) {
     }
 
     const data = await aiResponse.json();
+    if (data.error) {
+      console.error('OpenAI API error:', data.error);
+      return NextResponse.json({ error: 'Failed to generate image' }, { status: 500 });
+    }
     const imageUrl = data.data?.[0]?.url;
     if (!imageUrl) {
       return NextResponse.json({ error: 'No image returned' }, { status: 500 });

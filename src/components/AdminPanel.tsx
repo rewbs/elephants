@@ -23,7 +23,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [aiPrompt, setAiPrompt] = useState<string>('');
+  const [generationMode, setGenerationMode] = useState<'fast' | 'slow'>('fast');
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,13 +79,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const generateImage = async () => {
-    if (!aiPrompt) return;
+    if (!caption) return;
     setIsGenerating(true);
     try {
       const res = await fetch('/api/elephants/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: aiPrompt }),
+        body: JSON.stringify({ 
+          prompt: caption,
+          model: generationMode === 'fast' ? 'dall-e-3' : 'gpt-image-1'
+        }),
       });
       if (!res.ok) throw new Error('Failed to generate image');
       const data = await res.json();
@@ -105,7 +108,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     const file = new File([blob], 'ai-elephant.png', { type: blob.type });
     setImageFile(file);
     setPreviewUrl(generatedImageUrl);
-    setCaption(aiPrompt);
     setGeneratedImageUrl(null);
   };
 
@@ -206,108 +208,124 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           )}
 
-          {/* AI generator */}
-          <div>
-            <label htmlFor="ai-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Generate with AI
-            </label>
-            <textarea
-              id="ai-prompt"
-              rows={2}
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              className="w-full rounded-md border border-gray-300 py-2 px-3 bg-white dark:bg-gray-700 dark:border-gray-600"
-              placeholder="e.g. wearing a top hat"
-            />
-            <button
-              type="button"
-              onClick={generateImage}
-              disabled={!aiPrompt || isGenerating}
-              className="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-            >
-              {isGenerating ? 'Generating...' : 'Generate Elephant'}
-            </button>
-
-            {generatedImageUrl && (
-              <div className="mt-4">
-                <img
-                  src={generatedImageUrl}
-                  alt="Generated preview"
-                  className="w-full max-h-48 object-contain rounded border"
-                />
-                <div className="flex justify-end space-x-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={acceptGeneratedImage}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Use this image
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGeneratedImageUrl(null)}
-                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    Discard
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Image
-            </label>
-            <div className="space-y-2">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Or paste an image from clipboard (Ctrl+V/Cmd+V)
-              </div>
-              {previewUrl && (
-                <div className="mt-2 relative">
-                  <img 
-                    src={previewUrl} 
-                    alt="Preview" 
-                    className="w-full max-h-48 object-contain rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImageFile(null);
-                      setPreviewUrl(null);
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                    }}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          
           <div>
             <label htmlFor="caption" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Caption
+              Caption / Generation Prompt
             </label>
             <input
               type="text"
               id="caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Hydrogen Elephant - The Lightest Pachyderm"
+              placeholder="Describe the elephant (e.g. Hydrogen Elephant wearing a top hat)"
               className="w-full rounded-md border border-gray-300 py-2 px-3 bg-white dark:bg-gray-700 dark:border-gray-600"
               required
             />
+          </div>
+          
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <h3 className="text-lg font-medium mb-3">Add Elephant Image</h3>
+            <div className="flex flex-col space-y-4">
+              {/* Option 1: Upload Image */}
+              <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+                <h4 className="font-medium mb-2">Option 1: Upload an Image</h4>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Or paste an image from clipboard (Ctrl+V/Cmd+V)
+                  </div>
+                  {previewUrl && (
+                    <div className="mt-2 relative">
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className="w-full max-h-48 object-contain rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setPreviewUrl(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                          }
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Option 2: Generate with AI */}
+              <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+                <h4 className="font-medium mb-2">Option 2: Generate with AI</h4>
+                <div className="flex items-center space-x-4 mb-3">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio"
+                      name="generation-mode"
+                      checked={generationMode === 'fast'}
+                      onChange={() => setGenerationMode('fast')}
+                    />
+                    <span className="ml-2">Fast Mode</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio"
+                      name="generation-mode"
+                      checked={generationMode === 'slow'}
+                      onChange={() => setGenerationMode('slow')}
+                    />
+                    <span className="ml-2">High Quality</span>
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={generateImage}
+                  disabled={!caption || isGenerating}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 w-full"
+                >
+                  {isGenerating ? 'Generating...' : `Generate Elephant (${generationMode === 'fast' ? 'Fast' : 'High Quality'})`}
+                </button>
+                
+                {generatedImageUrl && (
+                  <div className="mt-4">
+                    <img
+                      src={generatedImageUrl}
+                      alt="Generated preview"
+                      className="w-full max-h-48 object-contain rounded border"
+                    />
+                    <div className="flex justify-end space-x-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={acceptGeneratedImage}
+                        className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      >
+                        Use this image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGeneratedImageUrl(null)}
+                        className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                      >
+                        Discard
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           
           <div className="flex justify-end space-x-3 pt-2">
