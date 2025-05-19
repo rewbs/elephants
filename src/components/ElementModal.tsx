@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { ElementWithImage } from '@/types/types';
+import { ElementWithImage, Story as StoryType } from '@/types/types';
 import FullscreenImage from './FullscreenImage';
+import Story from './Story';
 
 interface ElementModalProps {
   element: ElementWithImage | null;
   onClose: () => void;
   onDeleteElephant?: (id: number) => Promise<void>;
   onAddElephant?: (elementSymbol: string) => void;
+  isAdmin?: boolean;
 }
 
-const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteElephant, onAddElephant }) => {
+const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteElephant, onAddElephant, isAdmin = false }) => {
   if (!element) return null;
   
   const [activeIndex, setActiveIndex] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [stories, setStories] = useState<StoryType[]>([]);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [isLoadingStories, setIsLoadingStories] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   
   // Scroll the modal into view when it opens
@@ -26,6 +31,104 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
       }, 100);
     }
   }, []);
+
+  // Load stories for the active elephant
+  useEffect(() => {
+    if (hasElephants && activeElephant?.id) {
+      loadStories(activeElephant.id);
+    } else {
+      setStories([]);
+    }
+  }, [activeIndex]);
+
+  // Get all elements, regardless of whether they have elephants
+  const hasElephants = element.elephants && element.elephants.length > 0;
+  const elephants = element.elephants || [];
+  const activeElephant = hasElephants ? elephants[activeIndex] : null;
+
+  const nextElephant = () => {
+    setActiveIndex((prev) => (prev + 1) % elephants.length);
+  };
+
+  const prevElephant = () => {
+    setActiveIndex((prev) => (prev - 1 + elephants.length) % elephants.length);
+  };
+
+  const loadStories = async (elephantId: number) => {
+    setIsLoadingStories(true);
+    try {
+      const res = await fetch(`/api/elephants/stories?elephantId=${elephantId}`);
+      if (!res.ok) throw new Error('Failed to load stories');
+      const data = await res.json();
+      setStories(data);
+    } catch (error) {
+      console.error('Error loading stories:', error);
+      setStories([]);
+    } finally {
+      setIsLoadingStories(false);
+    }
+  };
+
+  const generateStory = async () => {
+    if (!activeElephant?.id || !element) return;
+    
+    setIsGeneratingStory(true);
+    try {
+      // Step 1: Generate the story
+      const generateRes = await fetch('/api/elephants/stories/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          elephantId: activeElephant.id,
+          elementSymbol: element.symbol,
+          elementName: element.name,
+          caption: activeElephant.caption,
+          imageUrl: activeElephant.imageUrl
+        }),
+      });
+      
+      if (!generateRes.ok) throw new Error('Failed to generate story');
+      const generatedData = await generateRes.json();
+      
+      // Step 2: Save the story to the database
+      const saveRes = await fetch('/api/elephants/stories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: generatedData.content,
+          elephantId: activeElephant.id
+        }),
+      });
+      
+      if (!saveRes.ok) throw new Error('Failed to save story');
+      const savedStory = await saveRes.json();
+      
+      // Step 3: Add the new story to the stories array
+      setStories(prevStories => [savedStory, ...prevStories]);
+      
+    } catch (error) {
+      console.error('Error generating story:', error);
+      alert('Failed to generate story');
+    } finally {
+      setIsGeneratingStory(false);
+    }
+  };
+
+  const deleteStory = async (storyId: number) => {
+    try {
+      const res = await fetch(`/api/elephants/stories?id=${storyId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!res.ok) throw new Error('Failed to delete story');
+      
+      // Remove the deleted story from the stories array
+      setStories(prevStories => prevStories.filter(story => story.id !== storyId));
+    } catch (error) {
+      console.error('Error deleting story:', error);
+      throw error;
+    }
+  };
 
   // Create a CSS class based on the category
   const getCategoryClass = (category: string) => {
@@ -42,18 +145,6 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
       case 'lanthanide': return 'bg-lanthanide';
       default: return 'bg-gray-200';
     }
-  };
-
-  const hasElephants = element.elephants && element.elephants.length > 0;
-  const elephants = element.elephants || [];
-  const activeElephant = hasElephants ? elephants[activeIndex] : null;
-
-  const nextElephant = () => {
-    setActiveIndex((prev) => (prev + 1) % elephants.length);
-  };
-
-  const prevElephant = () => {
-    setActiveIndex((prev) => (prev - 1 + elephants.length) % elephants.length);
   };
 
   return (
@@ -161,23 +252,43 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
               <div className="flex justify-between items-center mt-2">
                 <span className="text-sm text-gray-500">Element: {element.name} ({element.symbol})</span>
                 
-                {onDeleteElephant && activeElephant?.id && (
+                <div className="flex space-x-2">
+                  {/* Story generation button */}
                   <button
-                    onClick={() => {
-                      const elephantId = activeElephant.id!;
-                      if (window.confirm('Are you sure you want to delete this elephant?')) {
-                        onDeleteElephant(elephantId);
-                      }
-                    }}
-                    className="text-red-500 hover:text-red-700 px-2 py-1 rounded bg-red-50 hover:bg-red-100 flex items-center"
-                    title="Delete this elephant"
+                    onClick={generateStory}
+                    disabled={isGeneratingStory}
+                    className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center text-sm"
+                    title="Generate a story about this elephant"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete
+                    {isGeneratingStory ? 'Generating...' : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Generate Story
+                      </>
+                    )}
                   </button>
-                )}
+                  
+                  {/* Delete elephant button (admin only) */}
+                  {isAdmin && onDeleteElephant && activeElephant?.id && (
+                    <button
+                      onClick={() => {
+                        const elephantId = activeElephant.id!;
+                        if (window.confirm('Are you sure you want to delete this elephant?')) {
+                          onDeleteElephant(elephantId);
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700 px-2 py-1 rounded bg-red-50 hover:bg-red-100 flex items-center text-sm"
+                      title="Delete this elephant"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
               
               {/* Thumbnail navigation for multiple elephants */}
@@ -206,6 +317,43 @@ const ElementModal: React.FC<ElementModalProps> = ({ element, onClose, onDeleteE
                   ))}
                 </div>
               )}
+              
+              {/* Stories section */}
+              <div className="mt-6">
+                <h3 className="text-lg font-bold mb-4">Elephant Stories</h3>
+                
+                {isLoadingStories ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                    <p className="mt-2 text-gray-600">Loading stories...</p>
+                  </div>
+                ) : stories.length > 0 ? (
+                  <div className="space-y-6">
+                    {stories.map(story => (
+                      <Story 
+                        key={story.id} 
+                        story={story} 
+                        onDelete={isAdmin ? deleteStory : undefined}
+                        isAdmin={isAdmin}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="text-4xl mb-3">📝</div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      No stories yet for this elephant.
+                    </p>
+                    <button
+                      onClick={generateStory}
+                      disabled={isGeneratingStory}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {isGeneratingStory ? 'Generating...' : 'Generate the First Story'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
           

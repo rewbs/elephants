@@ -22,6 +22,19 @@ model Elephant {
   caption     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  stories     Story[]  // Relationship to stories
 
   @@index([elementSymbol])
+}
+
+// Stories generated for elephants
+model Story {
+  id          Int      @id @default(autoincrement())
+  content     String   // The story text
+  elephant    Elephant @relation(fields: [elephantId], references: [id], onDelete: Cascade)
+  elephantId  Int      // Reference to the elephant
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([elephantId])
 }

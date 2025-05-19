@@ -12,12 +12,20 @@ export interface Element {
   yPos: number;
 }
 
+export interface Story {
+  id?: number;
+  content: string;
+  elephantId: number;
+  createdAt?: Date;
+}
+
 export interface ElephantImage {
   id?: number;
   imageUrl: string;
   caption: string;
   blobKey?: string;
   createdAt?: Date;
+  stories?: Story[];
 }
 
 export interface ElementWithImage extends Element {
